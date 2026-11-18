@@ -664,3 +664,4 @@ a:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+.search-form{display:flex;gap:.5rem;align-items:center;margin:1rem 0;flex-wrap:wrap}.search-form input{padding:.5rem;min-width:18rem;color:#000}.search-form button{padding:.5rem 1rem;border:1px solid currentColor}
