@@ -1,19 +1,25 @@
 import Link from "next/link";
 import AlbumArtwork from "../components/AlbumArtwork";
+import SearchForm from "../components/SearchForm";
 import { albums, artists } from "../../data/albums";
+import { MAX_QUERY_LENGTH, normalizeQuery, searchAlbums } from "../../lib/search";
 
 type Props = {
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 export default async function AlbumsPage({ searchParams }: Props) {
-    const { artist: artistSlug } = await searchParams;
+    const { artist: artistSlug, q } = await searchParams;
+    const rawQuery = typeof q === "string" ? q : "";
+    const isSearching = typeof q === "string";
+    const hasQuery = normalizeQuery(rawQuery) !== "";
     const selectedArtist = typeof artistSlug === "string"
         ? artists.find((artist) => artist.slug === artistSlug)
         : undefined;
     const artistAlbums = selectedArtist
         ? albums.filter((album) => album.artist === selectedArtist.name)
         : [];
+    const results = searchAlbums(rawQuery, selectedArtist ? artistAlbums : albums);
 
     return (
         <main className="page-shell collection-page">
@@ -28,9 +34,42 @@ export default async function AlbumsPage({ searchParams }: Props) {
                 </p>
             </div>
 
+            <SearchForm artist={selectedArtist?.slug} defaultValue={rawQuery} maxLength={MAX_QUERY_LENGTH} />
+
+            {isSearching && (
+                <section aria-label="Search results" data-testid="search-results">
+                    {!hasQuery ? (
+                        <p data-testid="search-message">Please enter a search term.</p>
+                    ) : results.length === 0 ? (
+                        <p data-testid="search-message">No results found for &quot;{rawQuery.trim()}&quot;.</p>
+                    ) : (
+                        <>
+                            <p data-testid="search-message">{results.length} result(s) found.</p>
+                            <div className="album-grid">
+                                {results.map((album) => (
+                                    <Link
+                                        className="album-card"
+                                        data-testid="search-result"
+                                        href={selectedArtist ? `/albums/${album.id}?artist=${selectedArtist.slug}` : `/albums/${album.id}`}
+                                        key={album.id}
+                                        aria-label={`Open ${album.title} by ${album.artist}`}
+                                    >
+                                        <AlbumArtwork cover={album.cover} alt={`${album.title} by ${album.artist}`} />
+                                        <span className="album-card-meta">
+                                            <span className="album-artist">{album.title}</span>
+                                            <span className="album-year">{album.year}</span>
+                                        </span>
+                                    </Link>
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </section>
+            )}
+
             {selectedArtist && <Link className="back-link" href="/albums">← All artists</Link>}
 
-            <section className="album-grid" aria-label={selectedArtist ? `${selectedArtist.name} albums` : "Artists"}>
+            {!isSearching && <section className="album-grid" aria-label={selectedArtist ? `${selectedArtist.name} albums` : "Artists"}>
                 {selectedArtist
                     ? artistAlbums.map((album, index) => (
                         <Link
@@ -70,7 +109,7 @@ export default async function AlbumsPage({ searchParams }: Props) {
                             </span>
                         </Link>
                     ))}
-            </section>
+            </section>}
         </main>
     );
 }
