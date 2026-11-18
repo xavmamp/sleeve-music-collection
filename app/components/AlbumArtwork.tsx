@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { getImageUrl } from "../../lib/images";
 
 type AlbumArtworkProps = {
     cover?: string;
@@ -11,7 +12,7 @@ export default function AlbumArtwork({ cover, alt, large = false }: AlbumArtwork
         <div className={`album-artwork${large ? " album-artwork-large" : ""}`}>
             {cover && (
                 <Image
-                    src={cover}
+                    src={getImageUrl(cover)}
                     alt={alt}
                     fill
                     sizes="(max-width: 820px) 100vw, 40vw"
