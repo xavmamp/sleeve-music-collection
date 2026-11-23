@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AlbumArtwork from "../../components/AlbumArtwork";
+import { Comments } from "../../components/Comments";
 import { albums } from "../../../data/albums";
 
 type Props = {
@@ -49,6 +50,7 @@ export default async function AlbumPage({ params, searchParams }: Props) {
                     </section>
                 </div>
             </article>
+            <Comments albumId={album.id} />
         </main>
     );
 }

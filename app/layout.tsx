@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import { albums, artists } from "../data/albums";
+import { UserInfo } from "./components/UserInfo";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,7 +21,7 @@ export const metadata: Metadata = {
   description: "A personal archive of albums and the songs inside them.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
@@ -36,6 +38,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 Artists <span className="nav-count">{String(artists.length).padStart(2, "0")}</span>
               </Link>
             </nav>
+
+            <UserInfo />
 
             <span className="header-note">PERSONAL RECORD INDEX</span>
           </header>
